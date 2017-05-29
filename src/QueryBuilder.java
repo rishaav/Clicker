@@ -42,13 +42,13 @@ public class QueryBuilder {
 	private String filterQuery(String filter, String x) {
 		// return basic query if user doesn't select a filter
 		if (filter.equalsIgnoreCase("All")){
-			return "Select questions.id" +
-					"\n" + "From questions" +
-					"\n" + "Inner join sessions" +
-					"\n" + "On questions.session_id = sessions.id" +
-					"\n" + "Inner join courses" +
-					"\n" + "On courses.id = sessions.course_id" +
-					"\n" + "WHERE 1=1";
+			return "Select questions.id\n" +
+					"From questions\n" +
+					"Inner join sessions\n" +
+					"On questions.session_id = sessions.id\n" +
+					"Inner join courses\n" +
+					"On courses.id = sessions.course_id\n" +
+					"WHERE 1=1\n";
 		}
 		
 		// if selected filter is one of the 2 options based on percent of correct answers...
@@ -105,12 +105,11 @@ public class QueryBuilder {
 	
 	private String orderByClause(String orderBy, String order) {
 		String clause = "";
-		
 		if(orderBy.equalsIgnoreCase("Chronological")) {
-			if(order.equalsIgnoreCase("Ascending")) {
-				 clause= "Order By"+" sessions.date, question.start_time "+"ASC";		
+			if(order.equalsIgnoreCase("ASC")) {
+				 clause= "Order By"+" sessions.date, questions.start_time "+"ASC";		
 			}
-			if(order.equalsIgnoreCase("Descending")) {
+			if(order.equalsIgnoreCase("DESC")) {
 				clause= "Order By"+" sessions.date, questions.start_time "+"DESC";
 			}
 			else {
@@ -119,11 +118,11 @@ public class QueryBuilder {
 		}
 		
 		if(orderBy.contains("Correctness")) {
-			if(order.equalsIgnoreCase("Ascending")) {
+			if(order.equalsIgnoreCase("ASC")) {
 				// TODO return order by clause
 				clause= "Order By"+ " percent "+"ASC";
 			}
-			if(order.equalsIgnoreCase("Descending")) {
+			if(order.equalsIgnoreCase("DESC")) {
 				// TODO return order by clause
 				clause= "Order By"+" percent "+"DESC";
 			}
@@ -165,4 +164,3 @@ public class QueryBuilder {
 	}
 	
 }
-

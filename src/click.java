@@ -38,7 +38,7 @@ public class click {
 				//connect.getImage();
 			}else if(response == 3){ 
 				System.out.println("Session Name is ");
-			}	else if(response == 0){ 
+			}	else if(response == 0){  
 				System.out.println("Goodbye!");
 				go = true; 
 				break; 

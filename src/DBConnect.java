@@ -12,12 +12,10 @@ public class DBConnect {
 	ArrayList<String> cour = new ArrayList<String>(); 
 	ArrayList<String> ids = new ArrayList<String>(); 
 	ArrayList<String> ans = new ArrayList<String>(); 
-	ArrayList<String> strttime = new ArrayList<String>(); 
-	TreeMap<String, String>IDnfans = new TreeMap<String, String>(); 
+	ArrayList<String> qname = new ArrayList<String>(); 
 	ArrayList<String> dura = new ArrayList<String>();
-	QueryBuilderMini qdm = new QueryBuilderMini(); 
-	Map<String, String> temp = new LinkedHashMap<String, String>(); 
-
+	
+	
 
 
 	public DBConnect(){
@@ -59,14 +57,41 @@ public class DBConnect {
 		
 		return cour; 
 	}
+	
+	public String getcourseID(String courseName){ 
+		courseName = "\""+ courseName +"\"";
+		
+		String courseid = "";
+		try{ 
+			String query = "SELECT id FROM courses WHERE course_name = " + courseName; 
+
+			rs = st.executeQuery(query);
+			while(rs.next()){ 
+				 courseid = rs.getString("course_name"); 
+				
+
+			}
+
+
+		}
+		
+		catch(Exception ex){ 
+			System.out.println(ex);
+		}
+		
+		return courseid; 
+	}
+		
+	
+	
 
 
 
-	public ArrayList<String> getsession(){ 
+	public ArrayList<String> getsession(String courID){ 
 		
 		try{ 
 			
-			String query = "SELECT id FROM sessions WHERE course_id = 1"; 
+			String query = "SELECT id FROM sessions WHERE course_id = " + courID; 
 			rs = st.executeQuery(query);
 			
 			while(rs.next()){ 
@@ -83,6 +108,31 @@ public class DBConnect {
 		
 		return ans; 
 	}
+	
+	
+public ArrayList<String> getQuestionName(String sessId){ 
+		
+		try{ 
+			
+			String query = "SELECT name FROM questions WHERE session_id = " + sessId;  
+			rs = st.executeQuery(query);
+			
+			while(rs.next()){ 
+				String id = rs.getString("name");
+				
+				qname.add(id);
+			}
+
+		}
+		
+		catch(Exception ex){ 
+			System.out.println(ex);
+		}
+		
+		return qname; 
+	}
+	
+	
 
 
 
@@ -90,7 +140,7 @@ public class DBConnect {
 
 	public Image getImage2(String session, String question){
 
-		question = "\"Question "+ question+"\"";
+		question = "\""+ question+"\"";
 		
 		InputStream is = null;
 		
@@ -118,7 +168,7 @@ public class DBConnect {
 	
 	public Image getResponse2(String session, String question){
 
-		question = "\"Question "+ question+"\"";
+		question = "\""+ question+"\"";
 		
 		InputStream is = null; 
 		
@@ -128,7 +178,7 @@ public class DBConnect {
 			String query = "SELECT response FROM questions WHERE session_id = " + session 
 					+ " AND name = " + question;
 			
-			//System.out.println(query);
+			
 
 			rs = st.executeQuery(query);
 			
@@ -182,63 +232,11 @@ public class DBConnect {
 	}
 
 
-	public String getResponse(String session){
-
-		String counter = null;
-		InputStream is = null; 
-		try{ 
-			int count = 0; 
-			String query = "SELECT response FROM questions WHERE session_id = " + session;
-
-			rs = st.executeQuery(query);
-			
-			while(rs.next()){ 
-				count++;
-				counter = Integer.toString(count); 
-				is=rs.getBinaryStream(1);
-				/*
-				FileOutputStream fos=new FileOutputStream("d:\\CS 141 FALL 2016\\"+session+"\\"+"r"+counter+".jpg");
-				
-				int k;
-				while((k=is.read())!=-1){
-					fos.write(k);
-				}
-				fos.close();
-				*/
-			}
-		}
-		
-		catch(Exception ex){ 
-			System.out.println(ex);
-		}
-		
-		return "d:\\"+"r"+counter+".jpg";
-	}
-
-
-
-
-	public Map<String, String> getBoth(String arg){ 
-		try{ 
-			String query = arg;
-
-			rs = st.executeQuery(query); 
-			while(rs.next()){ 
-				String duration = rs.getString("duration");
-				String name = rs.getString("name");
-
-
-				temp.put(name,duration); 
-			}
-
-		}catch(Exception ex){ 
-			System.out.println(ex);
-		}
-
-		return temp;  
-	}
 	
-	
+
+
+
+		
 	public void addAnswer(String question, String answer, String session){
 		
 		question = "\"Question "+ question+"\"";
@@ -258,30 +256,6 @@ public class DBConnect {
 	}
 	
 	
-public ArrayList<String> getPercent(){ 
-		
-		try{ 
-			String query = "SELECT course_name FROM courses"; 
-
-			rs = st.executeQuery(query);
-			while(rs.next()){ 
-				String coursename = rs.getString("course_name"); 
-				File file = new File("d:\\" + coursename);
-				
-				System.out.println("The courses are: " + coursename);
-				cour.add(coursename);
-
-			}
-
-
-		}
-		
-		catch(Exception ex){ 
-			System.out.println(ex);
-		}
-		
-		return cour; 
-	}
 
 	
 	

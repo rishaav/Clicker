@@ -46,12 +46,12 @@ public class GUI {
 
 	GUI(){
 
-		/*try
+		try
 		{
-			setUIFont(new javax.swing.plaf.FontUIResource("Tahoma",Font.PLAIN,10));
+			setUIFont(new javax.swing.plaf.FontUIResource("Sans Serif",Font.PLAIN,18));
 		}
 		catch(Exception e){}
-		 */
+		
 
 		questionCol = new ArrayList<String>(); 
 		durationCol = new ArrayList<String>();
@@ -84,7 +84,7 @@ public class GUI {
 		}
 
 
-
+		JButton sessRep = new JButton("Session Report");
 
 
 		//****LABELS****//
@@ -112,7 +112,9 @@ public class GUI {
 
 		ArrayList<String> courses = new ArrayList<String>();
 		ArrayList<String> sessions = new ArrayList<String>(); 
-		sessions = connect.getsession(); 
+		sessions = connect.getsession("1"); 
+		final ArrayList<String> sessName = sessions; 
+		
 		courses = connect.getcoursename(); 
 
 		String[] classList = new String[courses.size()]; 
@@ -121,10 +123,11 @@ public class GUI {
 		classList = courses.toArray(classList);  
 		sessionList = sessions.toArray(sessionList); 
 
-		String filterOptions[] = {"correct more X%","correct less X%", "All"};
+		String filterOptions[] = {"All","correct more X%","correct less X%"};
 		String orderOptions[] = {"Chronological", "Correctness"};
 
-		String questionList[] = {"1", "2", "3", "4", "5"}; 
+		String questionList[] = new String[sessions.size()];
+		questionList = sessions.toArray(questionList); 
 		String answerList[] = {"A", "B", "C", "D", "E"}; 
 
 		
@@ -195,12 +198,12 @@ public class GUI {
 		}
 
 		//JTable table = new JTable(data2, columns);
-		//table.setRowHeight(30);
 		
 		
 		
 		JTable table = new JTable();
-
+		table.setRowHeight(30);
+		
 		DefaultTableModel dtm = new DefaultTableModel(0, 0);
 
 		// add header in table model     
@@ -220,6 +223,7 @@ public class GUI {
 		JPanel pictureButtons = new JPanel();
 		pictureButtons.add(screenshotB);
 		pictureButtons.add(barchartB);
+		pictureButtons.add(sessRep);
 
 		results.add(pictureButtons);
 
@@ -235,24 +239,7 @@ public class GUI {
 
 
 
-		classMenu.addItem("A");
-		classMenu.addItem("B");
-		classMenu.addActionListener(new ActionListener() {
-
-	        public void actionPerformed(ActionEvent arg0) {
-	        	sessionMenu.removeAllItems();
-	            if (classMenu.getSelectedItem().equals("A")) {
-	            	sessionMenu.addItem("A");
-	            	sessionMenu.addItem("B");
-	            	sessionMenu.addItem("C");
-	            } else if (classMenu.getSelectedItem().equals("B")) {
-	            	sessionMenu.addItem("1");
-	            	sessionMenu.addItem("2");
-	            	sessionMenu.addItem("3");
-	            }
-	        }
-
-	    });
+		
 
 		//****ACTION LISTENERS FOR BUTTONS****//
 		
@@ -319,7 +306,6 @@ public class GUI {
 				String argum2 = qbm.fquery(sessionResp, order, orderCol);
 				nameCol.clear(); 
 				
-				nameCol = connect.getBoth(argum2);
 				
 				
 				 finalids.clear(); 
@@ -330,7 +316,6 @@ public class GUI {
 				
 				/*
 				for (String name: nameCol.keySet()){
-
 					String key =name.toString();
 					String value = nameCol.get(name).toString(); 
 					//table.getModel().setValueAt(key, count, 0);
@@ -340,27 +325,22 @@ public class GUI {
 				} 
 				*/
 				
-				
-				for(int i = 0; i<finalids.size(); i++){
-					ArrayList<String> name = src.getQNum(finalids.get(i));
-					ArrayList<String> dura = src.getQDuration(finalids.get(i));
-					ArrayList<String> perc = src.getQPercentCorrect(finalids.get(i)); 
-					
-					
-					dtm.addRow(new Object[] {name.get(i), dura.get(i), perc.get(i), " ", " " });		
-					
-				}
-				
-						
+				ArrayList<String> name = new ArrayList<String>();
+				ArrayList<String> dura = new ArrayList<String>();
+				ArrayList<String> perc = new ArrayList<String>();
+				ArrayList<String> ans = new ArrayList<String>(); 
 				 
-				
+				for (String id : finalids) {
+					name.add(src.getQName(id));
+					dura.add(src.getQDuration(id));
+					perc.add(src.getQPercentCorrect(id));
+					ans.add(src.getQCorrectAnswer(id)); 
+					
+					dtm.addRow(new Object[] {src.getQName(id), src.getQDuration(id), src.getQPercentCorrect(id),src.getQCorrectAnswer(id)});
+				}
 			}
 		};
-
-
 		
-
-
 
 
 		ActionListener update = new ActionListener() {
@@ -388,12 +368,12 @@ public class GUI {
 					}
 				}
 				
-				if(questionSelected==0){
-					JOptionPane.showMessageDialog(null, "Please, select row."); 
-					return;
-				}
+				String tester = (String)dtm.getValueAt(table.getSelectedRow(), 0); 
+				System.out.println("Tester is " + tester); 
 				
-				Image image = connect.getImage2(sessionSelected,Integer.toString(questionSelected));
+				
+				
+				Image image = connect.getImage2(sessionSelected,tester);
 				
 				image = image.getScaledInstance(1024, 768,  java.awt.Image.SCALE_SMOOTH); 
 				ImageIcon icon = new ImageIcon(image);
@@ -419,12 +399,13 @@ public class GUI {
 					}
 				}
 				
-				if(questionSelected==0){
-					JOptionPane.showMessageDialog(null, "Please, select row."); 
-					return;
-				}
+				String tester = (String)dtm.getValueAt(table.getSelectedRow(), 0); 
 				
-				Image image = connect.getResponse2(sessionSelected,Integer.toString(questionSelected));
+				
+				
+				
+				
+				Image image = connect.getResponse2(sessionSelected,tester);
 				
 				ImageIcon icon = new ImageIcon(image);
 				JLabel imageLabel = new JLabel(icon); 
@@ -438,6 +419,7 @@ public class GUI {
 			}
 		};
 		
+		
 		ActionListener updateAnswer = new ActionListener() {			
 			public void actionPerformed(ActionEvent e) {
 				
@@ -448,6 +430,81 @@ public class GUI {
 			
 			}
 		};
+		
+		
+		ActionListener sessionReport = new ActionListener(){ 
+			public void actionPerformed(ActionEvent e){ 
+				JFrame session = new JFrame("Session Report"); 
+
+				JPanel results = new JPanel(); 
+				results.setLayout(new BoxLayout(results, BoxLayout.PAGE_AXIS));
+
+				
+				String[] columns = new String[] {
+						"Session", "Date", "Time", "Questions","Min Duration","Max Duration", "Avg of Correct"
+				};
+
+				String[][] data2 = new String[20][5];//[row][column]
+				for(int row=0; row<10; row++){
+					for(int col=0; col<4; col++){
+						data2[row][col]=" ";
+					}
+
+				}
+
+				JTable table = new JTable();
+				
+				table.setRowHeight(30);
+
+				DefaultTableModel dtm = new DefaultTableModel(0, 0);
+
+			
+				
+				
+				dtm.setColumnIdentifiers(columns);
+				//set model into the table object
+				table.setModel(dtm);
+				results.add(new JScrollPane(table));
+				
+			
+				
+				
+				
+				ArrayList<String> name = new ArrayList<String>(); 
+				ArrayList<String> ans = new ArrayList<String>(); 
+				ArrayList<String> time = new ArrayList<String>(); 
+				ArrayList<String> qcount = new ArrayList<String>(); 
+				ArrayList<String> minTime = new ArrayList<String>(); 
+				ArrayList<String> maxTime = new ArrayList<String>(); 
+				ArrayList<String> avgCorr = new ArrayList<String>(); 
+				
+				
+				for (String id : sessName) {
+					
+					ans.add(src.getSDate(id));
+					time.add(src.getSTime(id));
+					qcount.add(src.getSNumQuestions(id));
+					minTime.add(src.getSMinDuration(id));
+					maxTime.add(src.getSMaxDuration(id)); 
+					avgCorr.add(src.getSPercentCorrect(id)); 
+					
+					dtm.addRow(new Object[] {id,src.getSDate(id), src.getSTime(id), src.getSNumQuestions(id),src.getSMinDuration(id),src.getSMaxDuration(id),src.getSPercentCorrect(id)});
+				}
+				
+				
+
+				
+				session.add(results); 
+				session.pack();
+				session.setVisible(true);
+						
+			
+			
+			}
+			
+		};
+		
+		
 
 
 		goB.addActionListener(go);  
@@ -456,7 +513,10 @@ public class GUI {
 		screenshotB.addActionListener(screenshot);
 		barchartB.addActionListener(barchart);
 		updateAnswerB.addActionListener(updateAnswer);
+		sessRep.addActionListener(sessionReport);
 	}
+
+	
 
 
 
